@@ -5,8 +5,6 @@ const inputLeft = document.getElementById("input-left"),
   slider = document.querySelector(".slider-image"),
   range = document.querySelector(".slider > .range");
 
-console.log(slider.classList.add("fade-out"));
-
 const btn = {
   play: document.getElementById("play"),
   pause: document.getElementById("pause"),
