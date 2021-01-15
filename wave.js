@@ -7,6 +7,7 @@ const btn = {
 let Spectrum = WaveSurfer.create({
   container: "#audio-spectrum",
   progressColor: "#03a9f4",
+  backend: "MediaElement",
 });
 
 // Play Button
