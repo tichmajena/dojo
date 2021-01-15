@@ -10,6 +10,10 @@ let Spectrum = WaveSurfer.create({
   backend: "MediaElement",
 });
 
+document.querySelector("#zoom-slider").oninput = function () {
+  Spectrum.zoom(Number(this.value));
+};
+
 // Play Button
 btn.play.addEventListener(
   "click",
@@ -68,7 +72,7 @@ window.addEventListener(
 
     // Enable/Disable buttons respectively
     btn.stop.disabled = false;
-    btn.pause.disabled = true;
+    btn.pause.disabled = false;
     btn.play.disabled = false;
   },
   false
