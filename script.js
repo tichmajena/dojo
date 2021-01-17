@@ -22,6 +22,8 @@ const audioFile = "Kufun-dojo";
 
 const dojo = {};
 
+const dojoBtnEl = document.getElementById("kata");
+
 let zvatanga;
 let zvapera;
 /**
@@ -135,3 +137,107 @@ setRightValue();
 audioEl.addEventListener("canplay", clipEngine);
 
 function clipEngine(e) {}
+
+/**
+ *
+ * The Kata
+ * Kata instatiates an Object with an array of Images and Clippers
+ * Clipper has methods which creates the DOM
+ * The button has a counter which indexes the Clipper and the Image there by matchincg them
+ *
+ */
+
+// const book1 = {
+//   title: "Book One",
+//   author: "John Doe",
+//   year: "2000",
+//   getSummary: () => {
+//     return `${this.title} was written by ${this.author} in the year ${this.year}.`;
+//   },
+// };
+
+function Book(leTitle, leAuthor, leYear) {
+  this.title = leTitle;
+  this.author = leAuthor;
+  this.year = leYear;
+  this.getSummary = () => {
+    return `${this.title} was written by ${this.author} in the year ${this.year}.`;
+  };
+  this.getAge = () => {
+    years = new Date().getFullYear() - parseInt(this.year);
+    return `
+    ${this.title} is ${years} years old.
+  `;
+  };
+}
+
+const book1 = new Book("The LOTR", "J.R.R Tolkein", "1950");
+
+const book2 = new Book("GOT", "G.R.R Martin", "2003");
+
+function Magazine(title, author, year, month) {
+  Book.call(this, title, author, year);
+  this.month = month;
+}
+
+const mag1 = new Magazine("GQ", "me", "2021", "JAN");
+
+class Bhuku {
+  constructor(leTitle, leAuthor, leYear) {
+    this.title = leTitle;
+    this.author = leAuthor;
+    this.year = leYear;
+  }
+
+  getSummary() {
+    return `${this.title} was written by ${this.author} in the year ${this.year}.`;
+  }
+  getAge() {
+    years = new Date().getFullYear() - parseInt(this.year);
+    return `${this.title} is ${years} years old.`;
+  }
+
+  revise(leNewYear) {
+    this.year = leNewYear;
+    this.revised = true;
+  }
+
+  static topBookStores() {
+    return `Barnes and Noble`;
+  }
+}
+
+const book3 = new Bhuku("The Hobbit", "J.R.R Tolkein", "1960");
+book3.revise("1973");
+
+class Journal extends Bhuku {
+  constructor(title, author, year, month) {
+    super(title, author, year, month);
+    this.month = month;
+  }
+}
+
+const journal1 = new Journal("Journal One", "IAZ", "2020", "DEC");
+
+let dojoKata = {
+  audio: "Json with Audio",
+  clipper: [{ item: "ClipperObj1" }, { item: "ClipperObj3" }, "etc"],
+  images: [1, 2, 3, 4, 5, "etc"],
+};
+
+let dojo_id = -1;
+
+dojoBtnEl.addEventListener("click", () => {
+  dojo_id++;
+  createClipper(dojo_id);
+});
+
+function createClipper(leDojo_id) {
+  console.log(dojo_id);
+  // Push new Clipper Object into dojoKata Array
+  // Create Clipper DOM using the Object
+  // Setup add image button
+  // Get ready to push image into image array
+  // On Add Image Button Click
+  
+}
