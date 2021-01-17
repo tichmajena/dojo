@@ -8,6 +8,29 @@ let Spectrum = WaveSurfer.create({
   container: "#audio-spectrum",
   progressColor: "#03a9f4",
   backend: "MediaElement",
+  plugins: [
+    WaveSurfer.regions.create({
+      regionsMinLength: 2,
+      regions: [
+        {
+          start: 1,
+          end: 3,
+          loop: false,
+          color: "hsla(400, 100%, 30%, 0.5)",
+        },
+        {
+          start: 50,
+          end: 7,
+          loop: false,
+          color: "hsla(200, 50%, 70%, 0.4)",
+          minLength: 1,
+        },
+      ],
+      dragSelection: {
+        slop: 5,
+      },
+    }),
+  ],
 });
 
 document.querySelector("#zoom-slider").oninput = function () {
