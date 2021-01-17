@@ -238,6 +238,29 @@ function createClipper(leDojo_id) {
   // Create Clipper DOM using the Object
   // Setup add image button
   // Get ready to push image into image array
-  // On Add Image Button Click
+  // On Add Image Button Click display Images and WP upload button
+  // Loop throught Images and add event Listeners
+  // On click, add attribute to image and push it to array
+  // Stringify dojoKata and Store it in Local Storage or Wordpress DB
+  // Throw image onto the screen
+  // Push New Region in Wavesurfer wave
+  // Bind slider values to clip values
+  // Change Waveseurfer seeker behaviour on zoom
+  // Wavesurfer time stamps
+  // Display audio time
+  //Store dojoKata Object in Pods Code Field via API
+
+  /*
+
+let ClipperObj = {
+  startClip: method that check previous endClip and returns the value, else 0
+  endClip: default value
+  dojo_id: dojo_id
+  color: method to generate random color
   
+
+
+}
+
+*/
 }
