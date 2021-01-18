@@ -4,6 +4,40 @@ const btn = {
   stop: document.getElementById("btn-stop"),
 };
 
+let regionsObj = {
+  regionsMinLength: 2,
+  regions: [
+    {
+      start: 10,
+      end: 30,
+      loop: false,
+      color: "hsla(400, 100%, 30%, 0.5)",
+    },
+    {
+      start: 50,
+      end: 70,
+      loop: false,
+      color: "hsla(200, 50%, 70%, 0.4)",
+      minLength: 1,
+    },
+  ],
+  dragSelection: {
+    slop: 5,
+  },
+};
+
+let newRegion = {
+  start: 70,
+  end: 90,
+  loop: false,
+  color: "hsla(200, 50%, 70%, 0.4)",
+  minLength: 1,
+};
+
+regionsObj.regions.push(newRegion);
+
+console.log(regionsObj.regions);
+
 const timeStampEl = document.getElementById("time-stamp");
 const waveEl = document.getElementById("audio-spectrum");
 var CursorPlugin = window.WaveSurfer.cursor;
@@ -19,27 +53,7 @@ let Spectrum = WaveSurfer.create({
   barGap: 3,
   plugins: [
     //Regions Plugin
-    WaveSurfer.regions.create({
-      regionsMinLength: 2,
-      regions: [
-        {
-          start: 10,
-          end: 30,
-          loop: false,
-          color: "hsla(400, 100%, 30%, 0.5)",
-        },
-        {
-          start: 50,
-          end: 7,
-          loop: false,
-          color: "hsla(200, 50%, 70%, 0.4)",
-          minLength: 1,
-        },
-      ],
-      dragSelection: {
-        slop: 5,
-      },
-    }),
+    WaveSurfer.regions.create(regionsObj),
     //Regions Plugin
     WaveSurfer.timeline.create({
       container: "#wave-timeline",
@@ -96,7 +110,7 @@ btn.stop.addEventListener(
     btn.stop.disabled = true;
     btn.pause.disabled = false;
     btn.play.disabled = false;
-    Spectrum.seekTo(currentProgress);
+    waveEl.scrollTo(0, 0);
   },
   false
 );
@@ -152,6 +166,5 @@ let timelineWidth = document.querySelector("#audio-spectrum").childNodes[2];
 let seekerBarEl = timelineWidth.childNodes[0];
 
 let w = window.innerWidth;
-console.log(timelineWidth.style);
-console.log(seekerBarEl);
-timelineWidth.style.overflowY = "unset";
+
+console.log(Spectrum);

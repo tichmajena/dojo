@@ -253,11 +253,13 @@ function createClipper(leDojo_id) {
   /*
 
 let ClipperObj = {
+
   startClip: method that check previous endClip and returns the value, else 0
   endClip: default value
   dojo_id: dojo_id
   color: method to generate random color
-  
+  image_thumb: 
+  full_image: 
 
 
 }

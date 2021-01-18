@@ -37,4 +37,16 @@ function dojo_scripts(){
  
 add_action( 'wp_enqueue_scripts', 'dojo_scripts');
 
+
+function register_dojo_cpt(){
+    register_post_type( 'dojo', [
+        'label' => 'Dojos',
+        'public' => true,
+        'capability_type' => 'post',
+    ] );
+}
+
+add_action('init', 'register_dojo_cpt');
+
+
 ?>
