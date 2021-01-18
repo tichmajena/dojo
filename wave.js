@@ -5,6 +5,7 @@ const btn = {
 };
 
 const timeStampEl = document.getElementById("time-stamp");
+const waveEl = document.getElementById("audio-spectrum");
 var CursorPlugin = window.WaveSurfer.cursor;
 
 let Spectrum = WaveSurfer.create({
@@ -46,6 +47,12 @@ let Spectrum = WaveSurfer.create({
     //Regions Plugin
     CursorPlugin.create({
       showTime: "#cursor-time",
+    }),
+    WaveSurfer.minimap.create({
+      container: "#wave-minimap",
+      waveColor: "#777",
+      progressColor: "#222",
+      height: 20,
     }),
   ],
 });
@@ -89,6 +96,7 @@ btn.stop.addEventListener(
     btn.stop.disabled = true;
     btn.pause.disabled = false;
     btn.play.disabled = false;
+    Spectrum.seekTo(currentProgress);
   },
   false
 );
@@ -132,12 +140,18 @@ Spectrum.on("audioprocess", function () {
     sec = "0" + String(sec);
   }
   timeStampEl.innerText = `${mins}:${sec}`;
+
+  let rightOffset = w - seekerBarEl.getBoundingClientRect().right;
+  if (0 >= rightOffset) {
+    waveEl.scrollBy(w, w);
+  }
 });
 
 let timelineWidth = document.querySelector("#audio-spectrum").childNodes[2];
 
 let seekerBarEl = timelineWidth.childNodes[0];
- 
+
+let w = window.innerWidth;
 console.log(timelineWidth.style);
 console.log(seekerBarEl);
-timelineWidth.style.overflowY='unset';
+timelineWidth.style.overflowY = "unset";
