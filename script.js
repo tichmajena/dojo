@@ -247,8 +247,8 @@ function createClipper(leDojo_id) {
   // Bind slider values to clip values
   // Change Waveseurfer seeker behaviour on zoom
   // Wavesurfer time stamps
-  // Display audio time
-  //Store dojoKata Object in Pods Code Field via API
+  // ------Display audio time
+  // Store dojoKata Object in Pods Code Field via API
 
   /*
 

@@ -5,7 +5,13 @@
     <title>Document</title>
   </head>
   <body>
+    <div>
+      <h1 style="font-size: 70px; font-family: Arial, Helvetica, sans-serif">
+        <span id="time-stamp">00:00</span>
+      </h1>
+    </div>
     <div id="audio-spectrum"></div>
+    <div id="wave-timeline"></div>
 
     <input type="button" value="Play" id="btn-play" disabled="disabled" />
     <input type="button" value="Pause" id="btn-pause" disabled="disabled" />
@@ -21,6 +27,8 @@
 
     <script src="wavesurfer.js"></script>
     <script src="dist/plugin/wavesurfer.regions.js"></script>
+    <script src="dist/plugin/wavesurfer.timeline.js"></script>
+    <script src="dist/plugin/wavesurfer.cursor.js"></script>
     <script src="wave.js"></script>
   </body>
 </html>

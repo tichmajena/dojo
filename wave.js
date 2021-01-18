@@ -4,17 +4,26 @@ const btn = {
   stop: document.getElementById("btn-stop"),
 };
 
+const timeStampEl = document.getElementById("time-stamp");
+var CursorPlugin = window.WaveSurfer.cursor;
+
 let Spectrum = WaveSurfer.create({
   container: "#audio-spectrum",
   progressColor: "#03a9f4",
   backend: "MediaElement",
+  barWidth: 3,
+  barRadius: 3,
+  cursorWidth: 1,
+  height: 100,
+  barGap: 3,
   plugins: [
+    //Regions Plugin
     WaveSurfer.regions.create({
       regionsMinLength: 2,
       regions: [
         {
-          start: 1,
-          end: 3,
+          start: 10,
+          end: 30,
           loop: false,
           color: "hsla(400, 100%, 30%, 0.5)",
         },
@@ -29,6 +38,14 @@ let Spectrum = WaveSurfer.create({
       dragSelection: {
         slop: 5,
       },
+    }),
+    //Regions Plugin
+    WaveSurfer.timeline.create({
+      container: "#wave-timeline",
+    }),
+    //Regions Plugin
+    CursorPlugin.create({
+      showTime: "#cursor-time",
     }),
   ],
 });
@@ -103,3 +120,24 @@ window.addEventListener(
 
 //load the audio
 Spectrum.load("assets/audio/kufun-dojo.mp3");
+
+Spectrum.on("audioprocess", function () {
+  let mins = Math.floor(Spectrum.getCurrentTime() / 60);
+  if (mins < 10) {
+    mins = "0" + String(mins);
+  }
+
+  let sec = Math.floor(Spectrum.getCurrentTime() % 60);
+  if (sec < 10) {
+    sec = "0" + String(sec);
+  }
+  timeStampEl.innerText = `${mins}:${sec}`;
+});
+
+let timelineWidth = document.querySelector("#audio-spectrum").childNodes[2];
+
+let seekerBarEl = timelineWidth.childNodes[0];
+ 
+console.log(timelineWidth.style);
+console.log(seekerBarEl);
+timelineWidth.style.overflowY='unset';
