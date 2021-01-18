@@ -167,4 +167,4 @@ let seekerBarEl = timelineWidth.childNodes[0];
 
 let w = window.innerWidth;
 
-console.log(Spectrum);
+console.log('Spectrum'+Spectrum);
