@@ -26,7 +26,7 @@ function dojo_scripts(){
         //plugins_url( 'js/dojo.js', __FILE__ ),
         plugin_dir_url( __FILE__ ) . 'js/main.js', NULL, 1.0, true
          );
-    wp_localize_script( 'main_js', 'magicalData', array(
+    wp_localize_script( 'main_js', 'dynamicData', array(
         'nonce' => wp_create_nonce( 'wp_rest' ),
         'dojo_id' => get_the_ID(),
         'restURL' => get_site_url() . "/wp-json/wp/v2/",

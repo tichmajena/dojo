@@ -168,3 +168,22 @@ let seekerBarEl = timelineWidth.childNodes[0];
 let w = window.innerWidth;
 
 console.log('Spectrum'+Spectrum);
+
+/*
+
+My Model has 
+--The audio
+--The thumbnails
+--The images
+--The JSON saving
+
+My View has
+--The Clipper
+--The Code Slide
+--The Uploader
+--The Selector
+
+My Controller has
+--button event Listeners
+ https://kfnd-watchfolder-mediabucket-zfeud6171uoh.s3.amazonaws.com/Kufun-dojo.mp3
+*/

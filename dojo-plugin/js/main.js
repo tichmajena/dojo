@@ -4,18 +4,23 @@ let btn = document.getElementById("ajax-btn"),
   uploadBtn = document.getElementById("slide-upload");
 console.log("ndiripo!");
 
+console.log(dynamicData.restURL);
+console.log(dynamicData.dojo_id);
+
 if (btn) {
   btn.addEventListener("click", () => {
+    discharge.innerHTML = "";
     console.log(btn);
     console.log("I have been clicked");
     let ourRequest = new XMLHttpRequest();
     ourRequest.open(
       "GET",
-      magicalData.restURL + "media?parent=" + magicalData.dojo_id + ""
+      dynamicData.restURL + "media?parent=" + dynamicData.dojo_id + ""
     );
     ourRequest.onload = () => {
       if (ourRequest.status >= 200 && ourRequest.status < 400) {
         let ourData = JSON.parse(ourRequest.responseText);
+
         renderHTML(ourData);
       } else {
         console.log("Can't get the things");
@@ -30,6 +35,8 @@ if (btn) {
   });
 }
 
+
+
 function renderHTML(ourData) {
   let i;
 
@@ -42,14 +49,17 @@ function renderHTML(ourData) {
     sliderObj.src = ourData[i].guid.rendered;
     sliderObj.thumb = ourData[i].media_details.sizes.thumbnail.source_url;
     sliderObj.medium = ourData[i].media_details.sizes.medium.source_url;
-    sliderObj.medium_large =
-      ourData[i].media_details.sizes.medium_large.source_url;
-    sliderObj.large = ourData[i].media_details.sizes.large.source_url;
-    sliderObj.full = ourData[i].media_details.sizes.full.source_url;
+    //sliderObj.medium_large = ourData[i].media_details.sizes.medium_large.source_url;
+    //sliderObj.large = ourData[i].media_details.sizes.large.source_url;
+   // sliderObj.full = ourData[i].media_details.sizes.full.source_url;
 
+    binDiv = document.createElement("div");
+    binDiv.classList.add('bin_image');
     imgTag = document.createElement("img");
     imgTag.src = sliderObj.medium;
-    fragEl.appendChild(imgTag);
+    imgTag.classList.add('absolute_image');
+    binDiv.appendChild(imgTag);
+    fragEl.appendChild(binDiv);
   }
   console.log(fragEl);
 
