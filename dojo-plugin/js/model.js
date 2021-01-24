@@ -17,7 +17,8 @@ model.init = function(){
  };
 
  model.getLocalStore = function(key){
-
+let store = JSON.parse(localStorage.getItem(key));
+return store;
  };
 
  model.updateLocalStore = async function(){
