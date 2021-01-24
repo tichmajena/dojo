@@ -22,20 +22,62 @@
  */
 function dojo_scripts(){
     wp_enqueue_script(
-        'main_js', 
-        //plugins_url( 'js/dojo.js', __FILE__ ),
-        plugin_dir_url( __FILE__ ) . 'js/main.js', NULL, 1.0, true
+        'dojo-data', 
+        plugin_dir_url( __FILE__ ) . 'js/data.js', 
+        NULL, 
+        time(), 
+        true
          );
-    wp_localize_script( 'main_js', 'dynamicData', array(
+
+    wp_enqueue_script(
+        'dojo-view', 
+        plugin_dir_url( __FILE__ ) . 'js/view.js', 
+        'dojo-data', 
+        time(), 
+        true 
+        );
+
+    
+
+    wp_enqueue_script(
+        'dojo-main', 
+        plugin_dir_url( __FILE__ ) . 'js/main.js', 
+        'dojo-view', 
+        time(), 
+        true 
+        );
+
+        
+
+    wp_enqueue_style( 
+        'dojo-style', 
+        plugin_dir_url( __FILE__ ) . 'css/style.css', NULL, time());
+
+    wp_localize_script( 'dojo-main', 'dynamicData', array(
+        'nonce' => wp_create_nonce( 'wp_rest' ),
+        'dojo_id' => get_the_ID(),
+        '_the_title' => the_title(),
+        '_the_content' => the_content(),
+        'restURL' => get_site_url() . "/wp-json/wp/v2/",
+
+    ) );
+
+    wp_localize_script( 'dojo-data', 'dynamicData', array(
         'nonce' => wp_create_nonce( 'wp_rest' ),
         'dojo_id' => get_the_ID(),
         'restURL' => get_site_url() . "/wp-json/wp/v2/",
 
     ) );
 
+
+    
+
 }
  
 add_action( 'wp_enqueue_scripts', 'dojo_scripts');
+//add_action( 'admin_enqueue_scripts', 'dojo_scripts');
+
+
 
 
 function register_dojo_cpt(){
