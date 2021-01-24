@@ -27,15 +27,23 @@ function dojo_scripts(){
         NULL, 
         time(), 
         true
-         );
+    );
+
+    wp_enqueue_script(
+        'dojo-model', 
+        plugin_dir_url( __FILE__ ) . 'js/model.js', 
+        'dojo-data', 
+        time(), 
+        true 
+    );
 
     wp_enqueue_script(
         'dojo-view', 
         plugin_dir_url( __FILE__ ) . 'js/view.js', 
-        'dojo-data', 
+        'dojo-model', 
         time(), 
         true 
-        );
+    );
 
     
 
@@ -45,7 +53,7 @@ function dojo_scripts(){
         'dojo-view', 
         time(), 
         true 
-        );
+    );
 
         
 

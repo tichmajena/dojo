@@ -1,5 +1,19 @@
-console.log(data);
-console.log('Ndichiripo');
+var kufunDojo = {
+
+  init: function() {
+
+    // Add any functions here you want
+    // to run to start the application
+    model.init();
+
+
+  console.log();
+    
+  }
+
+};
+
+kufunDojo.init();
 
 let uploadBtn = document.getElementById("slide_btn"),
     clipperEl = document.getElementById('clipper_1'),
@@ -21,7 +35,6 @@ function update_Id_Str(value){
 
       strArray[strArray.length - 1] = newId;
       return strArray.toString().replace(',', '_' );
-
 
 }
 
