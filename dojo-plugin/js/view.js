@@ -42,3 +42,22 @@ const inputLeft = document.getElementById("input-left"),
   
   inputLeft.addEventListener("input", setLeftValue);
   inputRight.addEventListener("input", setRightValue);
+  
+  var view = {};
+  
+  
+  /**
+   * Calls initial View methods
+   *
+   */
+  view.init = function() {
+  
+  
+  }
+  
+  view.createClippper = function(){
+    
+  }
+  
+  
+  
