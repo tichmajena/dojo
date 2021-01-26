@@ -1,42 +1,49 @@
 var kufunDojo = {
-
-  init: function() {
-
+  init: function () {
     // Add any functions here you want
     // to run to start the application
     model.init();
+    range_ids();
+    //view.init();
 
-
-  console.log();
-    
-  }
-
+    console.log();
+  },
 };
 
-kufunDojo.init();
+window.addEventListener("storage", kufunDojo.init());
 
-let uploadBtn = document.getElementById("slide_btn"),
-    clipperEl = document.getElementById('clipper_1'),
-    clipperEl_Id_Str = clipperEl.getAttribute('id');
-    btn = document.getElementById("image_btn"),
-    clipperBin = document.getElementById('clipper_bin'),
-    clipper2 = clipperEl.cloneNode(true),
-    clipper2_Id = update_Id_Str(clipperEl_Id_Str);
+var media_uploader = null;
 
-clipper2.setAttribute( 'id', clipper2_Id);
-clipperBin.appendChild(clipper2);
+function open_media_uploader_gallery() {
+  media_uploader = wp.media({
+    frame: "post",
+    state: "gallery-edit",
+    multiple: true,
+  });
 
-    console.log(clipperBin);
+  media_uploader.on("update", function () {
+    var length = media_uploader.state().attributes.library.length;
+    var images = media_uploader.state().attributes.library.models;
 
-function update_Id_Str(value){
-  let strArray = value.split('_'),
-      id = strArray[strArray.length - 1],
-      newId = parseInt(id) + 1;
+    for (var iii = 0; iii < length; iii++) {
+      var image_url = images[iii].changed.url;
+      var image_caption = images[iii].changed.caption;
+      var image_title = images[iii].changed.title;
+      var image_description = images[iii].changed.description;
 
-      strArray[strArray.length - 1] = newId;
-      return strArray.toString().replace(',', '_' );
+      //this object contains URL for medium, small, large and full sizes URL.
+      var sizes = images[iii].changed.sizes;
+    }
+  });
 
+  media_uploader.open();
 }
+
+launchWPMedia = document.getElementById("slide_btn");
+
+console.log(launchWPMedia);
+
+launchWPMedia.addEventListener("click", open_media_uploader_gallery);
 
 //   discharge = document.getElementById("ajax-div"),
 //   sliderObj = {},
@@ -53,11 +60,9 @@ function update_Id_Str(value){
 //     discharge.innerHTML = "";
 //     console.log(btn);
 //     console.log("I have been clicked");
-    
+
 //   });
 // }
-
-
 
 // function renderHTML(ourData) {
 //   let i;
@@ -88,18 +93,12 @@ function update_Id_Str(value){
 //   discharge.appendChild(fragEl);
 // }
 
-if (uploadBtn) {
-  uploadBtn.addEventListener("click", () => {
-    
-  });
-}
-
 let ourPostData = {
   // Get Form fields
-  "title" :  'The Tile', //dynamicData._the_title,
-  "content" : 'The Post',//dynamicData._the_content,
-  "storage" : "{'do_id': 'test_id'}",
-  "status" : "publish",
+  title: "The Tile", //dynamicData._the_title,
+  content: "The Post", //dynamicData._the_content,
+  storage: "{'do_id': 'test_id'}",
+  status: "publish",
 };
 
 // var uploadSlide = new XMLHttpRequest();

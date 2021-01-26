@@ -22,9 +22,51 @@
  */
 function dojo_scripts(){
     wp_enqueue_script(
+        'dojo-wavesurfer', 
+        plugin_dir_url( __FILE__ ) . 'js/wavesurfer.js', 
+        NULL, 
+        time(), 
+        true
+    );
+
+
+    wp_enqueue_script(
+        'dojo-wavesurfer-regions', 
+        plugin_dir_url( __FILE__ ) . 'js/dist/plugin/wavesurfer.regions.js', 
+        'dojo-wavesurfer', 
+        time(), 
+        true
+    );  
+    
+    wp_enqueue_script(
+        'dojo-wavesurfer-timeline', 
+        plugin_dir_url( __FILE__ ) . 'js/dist/plugin/wavesurfer.timeline.js', 
+        'dojo-wavesurfer-regions', 
+        time(), 
+        true
+    );   
+
+    wp_enqueue_script(
+        'dojo-wavesurfer-cursor', 
+        plugin_dir_url( __FILE__ ) . 'js/dist/plugin/wavesurfer.cursor.js', 
+        'dojo-wavesurfer-timeline', 
+        time(), 
+        true
+    );   
+
+    wp_enqueue_script(
+        'dojo-wavesurfer-minimap', 
+        plugin_dir_url( __FILE__ ) . 'js/dist/plugin/wavesurfer.minimap.js', 
+        'dojo-wavesurfer-cursor', 
+        time(), 
+        true
+    );   
+
+    
+    wp_enqueue_script(
         'dojo-data', 
         plugin_dir_url( __FILE__ ) . 'js/data.js', 
-        NULL, 
+        'dojo-wavesurfer-minimap', 
         time(), 
         true
     );
@@ -55,7 +97,11 @@ function dojo_scripts(){
         true 
     );
 
-        
+    
+
+    if (is_page_template('single-dojo.php')) {
+        wp_enqueue_media();
+    }
 
     wp_enqueue_style( 
         'dojo-style', 
@@ -84,6 +130,13 @@ function dojo_scripts(){
  
 add_action( 'wp_enqueue_scripts', 'dojo_scripts');
 //add_action( 'admin_enqueue_scripts', 'dojo_scripts');
+
+function enqueue_media_uploader()
+{
+    wp_enqueue_media();
+}
+
+add_action("admin_enqueue_scripts", "enqueue_media_uploader");
 
 
 
