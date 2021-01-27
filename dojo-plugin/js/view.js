@@ -1,26 +1,14 @@
 let view = {};
+let bin = document.querySelectorAll(".clipper_wrapper");
 let addAudioBtn = document.getElementById("add_audio_btn"),
-  formBlock = document.querySelector(".form-block");
+  formBlock = document.querySelector(".form-block"),
+  inputLeft = document.getElementById(`input_left_1`),
+  inputRight = document.getElementById(`input_right_1`);
 
 let clipper_ID = 1;
 let regionsObj = {};
 const dojo = {};
 let region;
-
-regionsObj = {
-  regionsMinLength: 2,
-  regions: [
-    {
-      start: 15,
-      end: 40,
-      loop: false,
-      color: "hsla(400, 100%, 30%, 0.5)",
-    },
-  ],
-  dragSelection: {
-    slop: 5,
-  },
-};
 
 view.init = function () {
   //view.clipperControls(clipper_ID);
@@ -28,9 +16,9 @@ view.init = function () {
 
 view.clipperControls = function (value) {
   // Get a dynamic DOM
-  const inputLeft = document.getElementById(`input_left_${value}`),
-    inputRight = document.getElementById(`input_right_${value}`),
-    thumbLeft = document.getElementById(`thumb_left_${value}`),
+  inputLeft = document.getElementById(`input_left_${value}`);
+  inputRight = document.getElementById(`input_right_${value}`);
+  const thumbLeft = document.getElementById(`thumb_left_${value}`),
     thumbRight = document.getElementById(`thumb_right_${value}`),
     //frame = document.getElementById(".slider-image"),
     range = document.getElementById(`clipper_range_${value}`);
@@ -105,22 +93,12 @@ function range_ids() {
   }
 }
 
-// inputLeft.addEventListener("click", setLeftValue);
-// inputRight.addEventListener("click", setRightValue);
-
 /**
  * Calls initial View methods
  *
  */
 
 // Last Wrapper
-let bin = document.querySelectorAll(".clipper_wrapper");
-console.log(bin[bin.length - 1]);
-
-tempIndex = [bin.length - 1];
-
-let addBtn = document.getElementById("plus_1");
-addBtn.addEventListener("click", cloneClipper);
 
 function cloneClipper() {
   let clipperEl = document.getElementById("clipper_1"),
@@ -146,24 +124,15 @@ function cloneClipper() {
   listEl.appendChild(newClipper);
   clipperBin.appendChild(listEl);
 
-  let newRegion = {
-    start: 60,
-    end: 80,
-    loop: false,
-    color: "hsla(200, 50%, 70%, 0.4)",
-    minLength: 1,
-  };
-
   console.log(newClipper);
   range_ids();
 }
-
-view.createClippper = function () {};
 
 /**
  * Audio Wave Section
  *
  */
+
 addAudioBtn.addEventListener("click", wavePlayer);
 
 function wavePlayer() {
@@ -188,7 +157,20 @@ function wavePlayer() {
     //barGap: 3,
     plugins: [
       //Regions Plugin
-      WaveSurfer.regions.create(regionsObj),
+      WaveSurfer.regions.create({
+        regionsMinLength: 2,
+        regions: [
+          {
+            start: 15,
+            end: 40,
+            loop: false,
+            color: "hsla(400, 100%, 30%, 0.5)",
+          },
+        ],
+        dragSelection: {
+          slop: 5,
+        },
+      }),
       //Regions Plugin
       WaveSurfer.timeline.create({
         container: "#wave-timeline",
@@ -205,6 +187,7 @@ function wavePlayer() {
       }),
     ],
   });
+
   //TODO: Finetune Zoom
   document.querySelector("#zoom-slider").oninput = function () {
     Spectrum.zoom(Number(this.value));
@@ -238,6 +221,7 @@ function wavePlayer() {
     let cont = document.getElementById("audio_spectrum");
     let clip_area = document.querySelector(".clipper_area");
     let canva = cont.querySelectorAll("canvas");
+    var timeWave = document.getElementById("wave-timeline");
     canva.forEach((canvas) => {
       let sect = canvas.style.width;
       sect = parseInt(sect, 10);
@@ -250,6 +234,7 @@ function wavePlayer() {
     }, 0);
     totalW = totalW / 2;
     clip_area.style.width = `${totalW}px`;
+    timeWave.style.width = `${totalW}px`;
   });
 
   window.addEventListener(
@@ -296,7 +281,9 @@ function wavePlayer() {
 
   //load the audio
   let audioEl = document.createElement("audio");
-  audioEl.src = model.getAudio();
+  //audioEl.src = model.getAudio();
+  audioEl.src =
+    "http://dojo.local/template/wp-content/plugins/dojo-plugin/assets/audio/Kufun-dojo.mp3";
   audioEl.crossOrigin = "anonymous";
   Spectrum.load(audioEl);
 
@@ -334,27 +321,59 @@ function wavePlayer() {
   console.log("Spectrum" + Spectrum);
 
   formBlock.remove();
+
+  let addBtn = document.getElementById("plus_1");
+  addBtn.addEventListener("click", () => {
+    let nnew = Spectrum.addRegion({
+      start: 50,
+      end: 100,
+      color: "rgba(0, 0, 0, 0.4)",
+    });
+    console.log("New Region:");
+    console.log(nnew);
+    region.push(nnew);
+    cloneClipper();
+  });
+
+  range_ids();
 }
 
-var isSyncingLeftScroll = false;
-var isSyncingRightScroll = false;
-var leftDiv = document.getElementById("tunnel2");
-var rightDiv = document.getElementById("audio_spectrum");
+var isSyncingTopScroll = false;
+var isSyncingMiddleScroll = false;
+var isSyncingBottomScroll = false;
+var topDiv = document.getElementById("tunnel2");
+var middleDiv = document.getElementById("tunnel1");
+var bottomDiv = document.getElementById("wave-timeline");
+console.log(bottomDiv);
 
-leftDiv.onscroll = function () {
-  if (!isSyncingLeftScroll) {
-    isSyncingRightScroll = true;
-    rightDiv.scrollLeft = this.scrollLeft;
+topDiv.onscroll = function () {
+  if (!isSyncingTopScroll) {
+    isSyncingMiddleScroll = true;
+    isSyncingBottomScroll = true;
+    middleDiv.scrollLeft = this.scrollLeft;
+    bottomDiv.scrollLeft = this.scrollLeft;
   }
-  isSyncingLeftScroll = false;
+  isSyncingTopScroll = false;
 };
 
-rightDiv.onscroll = function () {
-  if (!isSyncingRightScroll) {
-    isSyncingLeftScroll = true;
-    leftDiv.scrollLeft = this.scrollLeft;
+middleDiv.onscroll = function () {
+  if (!isSyncingMiddleScroll) {
+    isSyncingTopScroll = true;
+    isSyncingBottomScroll = true;
+    topDiv.scrollLeft = this.scrollLeft;
+    bottomDiv.scrollLeft = this.scrollLeft;
   }
-  isSyncingRightScroll = false;
+  isSyncingMiddleScroll = false;
+};
+
+bottomDiv.onscroll = function () {
+  if (!isSyncingBottomScroll) {
+    isSyncingTopScroll = true;
+    isSyncingBottomScroll = true;
+    topDiv.scrollLeft = this.scrollLeft;
+    middleDiv.scrollLeft = this.scrollLeft;
+  }
+  isSyncingBottomScroll = false;
 };
 
 /*
@@ -388,11 +407,19 @@ for (var i = 0; i < buttonsCount; i += 1) {
 //         let region = Object.values(Spectrum.regions.list)[1];
 //         region.playLoop();
 //       });
-function neewReg() {
-  console.log("ndamhanya");
-  Spectrum.addRegion({
-    start: 50,
-    end: 100,
-    color: "rgba(0, 0, 0, 0.4)",
-  });
-}
+
+// <img id="img_id_1" src="url/puc1.jpg" onclick="select_img(this.src)"/>
+
+// function select_img(src) {
+//   alert(src);
+//   document.getElementById("img_id_2").value=src;
+// }
+
+// // For
+// onResize(timeInSeconds, 'start');
+
+// region[0].play()
+
+// region[0].on("udpate-end", () => {
+//   console.log(region[0].end);
+// });

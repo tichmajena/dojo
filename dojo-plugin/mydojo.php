@@ -120,6 +120,8 @@ function dojo_scripts(){
         'nonce' => wp_create_nonce( 'wp_rest' ),
         'dojo_id' => get_the_ID(),
         'restURL' => get_site_url() . "/wp-json/wp/v2/",
+        'testAudio' => get_site_url() . '/wp-content/plugins/dojo-plugin/assets/audio/Kufun-dojo.mp3',
+        'testImage' => get_site_url() . '/wp-content/plugins/dojo-plugin/assets/img/Noma_Dojo_2006.jfif',
 
     ) );
 

@@ -3,7 +3,7 @@ var kufunDojo = {
     // Add any functions here you want
     // to run to start the application
     model.init();
-    range_ids();
+
     //view.init();
 
     console.log();
