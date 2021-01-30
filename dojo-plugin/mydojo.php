@@ -140,6 +140,9 @@ function enqueue_media_uploader()
 
 add_action("admin_enqueue_scripts", "enqueue_media_uploader");
 
+add_action( 'media_buttons', function($editor_id){
+    echo '<a href="#" class="button">Open Dojo</a>';
+} );
 
 
 

@@ -3,7 +3,17 @@ let bin = document.querySelectorAll(".clipper_wrapper");
 let addAudioBtn = document.getElementById("add_audio_btn"),
   formBlock = document.querySelector(".form-block"),
   inputLeft = document.getElementById(`input_left_1`),
-  inputRight = document.getElementById(`input_right_1`);
+  inputRight = document.getElementById(`input_right_1`),
+  frameBtnEl = document.querySelector(".mainview_buttons"),
+  frameEl = document.querySelector(".frame"),
+  frameImg = frameEl.querySelector("img"),
+  galleryBtn = document.querySelector("#image_btn"),
+  thumbClone = document.querySelector("#thumb_clone_holder").children[0],
+  thumbImg = thumbClone.children[0],
+  thumbBin = document.querySelector(".clip_bin");
+
+console.log(thumbClone);
+console.log(thumbImg);
 
 let clipper_ID = 1;
 let regionsObj = {};
@@ -100,33 +110,7 @@ function range_ids() {
 
 // Last Wrapper
 
-function cloneClipper() {
-  let clipperEl = document.getElementById("clipper_1"),
-    clipperBin = document.getElementById("clipper_bin"),
-    binArray = document.querySelectorAll(".clipper_wrapper"),
-    newId = binArray.length + 1,
-    listEl = document.createElement("li"),
-    newClipper = clipperEl.cloneNode(true);
-
-  newClipper.setAttribute("id", `clipper_${newId}`);
-
-  function incrementIds(id) {
-    newClipper.querySelector(`#${id}_1`).setAttribute("id", `${id}_${newId}`);
-    newClipper;
-  }
-
-  incrementIds("input_left");
-  incrementIds("input_right");
-  incrementIds("thumb_left");
-  incrementIds("thumb_right");
-  incrementIds("clipper_range");
-
-  listEl.appendChild(newClipper);
-  clipperBin.appendChild(listEl);
-
-  console.log(newClipper);
-  range_ids();
-}
+function cloneClipper() {}
 
 /**
  * Audio Wave Section
@@ -161,7 +145,7 @@ function wavePlayer() {
         regionsMinLength: 2,
         regions: [
           {
-            start: 15,
+            start: dojo.currentTime,
             end: 40,
             loop: false,
             color: "hsla(400, 100%, 30%, 0.5)",
@@ -262,22 +246,31 @@ function wavePlayer() {
 
   console.log(region);
 
-  // Spectrum.on("audioprocess", function () {
-  //   let startClip = (dojo.beginPercent * audioEl.duration) / 100;
-  //   console.log(startClip);
-
-  //   let stopClip = (dojo.endPercent * audioEl.duration) / 100;
-  //   console.log(stopClip);
-
-  //   if (audioEl.currentTime > startClip && audioEl.currentTime < stopClip) {
-  //     console.log("Show Slide");
-
-  //     slider.style.opacity = 1;
-  //   } else {
-  //     console.log("Slide Gone");
-  //     slider.style.opacity = 0;
-  //   }
-  // });
+  Spectrum.on("audioprocess", function () {
+    dojo.kataBin.forEach((clipper, index) => {
+      let imageSrc = clipper[index].mainImage,
+        startClip = clipper[index].katana.start,
+        endClip = clipper[index].katana.end,
+        isActive = false;
+      console.log(endClip);
+      if (dojo.currentTime >= startClip && dojo.currentTime <= endClip) {
+        //Show or Hide Slide
+        if ("" === imageSrc) {
+          frameBtnEl.style.display = "flex";
+          frameEl.style.display = "none";
+        } else {
+          frameImg.src = imageSrc;
+          frameBtnEl.style.display = "none";
+          document.querySelector(".frame").style.display = "block";
+          console.log(dojo.currentTime);
+        }
+      } else {
+        console.log("Slider Gone");
+        frameBtnEl.style.display = "flex";
+        frameEl.style.display = "none";
+      }
+    });
+  });
 
   //load the audio
   let audioEl = document.createElement("audio");
@@ -288,6 +281,7 @@ function wavePlayer() {
   Spectrum.load(audioEl);
 
   Spectrum.on("audioprocess", function () {
+    dojo.currentTime = Spectrum.getCurrentTime();
     let mins = Math.floor(Spectrum.getCurrentTime() / 60);
     if (mins < 10) {
       mins = "0" + String(mins);
@@ -307,30 +301,28 @@ function wavePlayer() {
 
   Spectrum.on("ready", function () {
     dojo.duration = Spectrum.getDuration();
-    console.log("Duration: " + dojo.duration);
+    dojo.currentTime = Spectrum.getCurrentTime();
+    dojo.kataBin = Storage.getKata();
   });
 
   let timelineWidth = document.getElementById("audio_spectrum").children[2];
-  console.log(timelineWidth);
 
   let seekerBarEl = timelineWidth.childNodes[0];
-  console.log(seekerBarEl);
 
   let w = window.innerWidth;
-
-  console.log("Spectrum" + Spectrum);
 
   formBlock.remove();
 
   let addBtn = document.getElementById("plus_1");
   addBtn.addEventListener("click", () => {
+    //TODO: Get previous region end time
+    let dhdh = 30;
     let nnew = Spectrum.addRegion({
-      start: 50,
+      start: dhdh,
       end: 100,
       color: "rgba(0, 0, 0, 0.4)",
     });
-    console.log("New Region:");
-    console.log(nnew);
+
     region.push(nnew);
     cloneClipper();
   });
@@ -344,7 +336,6 @@ var isSyncingBottomScroll = false;
 var topDiv = document.getElementById("tunnel2");
 var middleDiv = document.getElementById("tunnel1");
 var bottomDiv = document.getElementById("wave-timeline");
-console.log(bottomDiv);
 
 topDiv.onscroll = function () {
   if (!isSyncingTopScroll) {
@@ -423,3 +414,114 @@ for (var i = 0; i < buttonsCount; i += 1) {
 // region[0].on("udpate-end", () => {
 //   console.log(region[0].end);
 // });
+
+class UI {
+  static buildEditor() {
+    const clippers = Storage.getKata();
+
+    clippers.forEach((clipper) => UI.buildClipper(clipper));
+  }
+
+  static buildClipper() {
+    let clipperEl = document.getElementById("clipper_1"),
+      clipperBin = document.getElementById("clipper_bin"),
+      binArray = document.querySelectorAll(".clipper_wrapper"),
+      newId = binArray.length + 1,
+      listEl = document.createElement("li"),
+      newClipper = clipperEl.cloneNode(true);
+
+    newClipper.setAttribute("id", `clipper_${newId}`);
+
+    function incrementIds(idAttr) {
+      let childEl = newClipper.querySelector(`#${id}_1`),
+        indexx = parse.int(newId) - 1;
+      childEl.setAttribute("id", `${idAttr}_${newId}`);
+      childEl.setAttribute("data-index", `${indexx}`);
+    }
+
+    incrementIds("input_left");
+    incrementIds("input_right");
+    incrementIds("thumb_left");
+    incrementIds("thumb_right");
+    incrementIds("clipper_range");
+
+    listEl.appendChild(newClipper);
+    clipperBin.appendChild(listEl);
+    range_ids();
+
+    //TODO: Build WaveSurfer Regions using regions object
+  }
+
+  static destroyClipper(leTarget) {
+    if (leTarget.classList.contains("delete")) {
+      leTarget.parentElement.parentElement.remove();
+    }
+    //region[i]remove();
+  }
+
+  static showAlert() {}
+
+  static sanitizeDOM() {}
+}
+
+dojo.clipperStatus = function () {
+  console.log("Im running");
+};
+
+galleryBtn.addEventListener("click", () => {
+  let gallArray = model.getImages();
+  gallArray.forEach((thumb, index) => {
+    let thumbSrc = thumb.media_details.sizes.thumbnail.source_url,
+      thumbnail = thumbClone.cloneNode(true);
+    thumbnail.children[0].src = thumbSrc;
+    thumbnail.children[0].setAttribute("data-index", index);
+    thumbBin.appendChild(thumbnail);
+  });
+});
+
+thumbBin.addEventListener("click", (e) => {
+  e.preventDefault();
+
+  let gallArray = model.getImages(),
+    ii = parseInt(e.target.getAttribute("data-index"));
+  console.log(gallArray[ii].source_url);
+
+  dojo.kataBin.forEach((clipper, index) => {
+    let imageSrc = clipper[index].mainImage,
+      startClip = clipper[index].katana.start,
+      endClip = clipper[index].katana.end,
+      isActive = false;
+
+    if (dojo.currentTime >= startClip && dojo.currentTime <= endClip) {
+      console.log("this Kata is active");
+      isActive = true;
+      imageSrc = gallArray[ii].source_url;
+
+      dojo.kataBin[0][index].mainImage = imageSrc;
+
+      let yas = Storage.getKata();
+
+      console.log(yas);
+
+      yas[0][index].mainImage = imageSrc;
+
+      console.log(yas[index]);
+      console.log(yas[0][index].mainImage);
+
+      localStorage.setItem("Pfimbi-Yangu", JSON.stringify(yas));
+      //dojo.kataBin = Storage.getKata();
+      console.log(Storage.getKata());
+
+      if ("" === imageSrc) {
+        frameBtnEl.style.display = "flex";
+        frameEl.style.display = "none";
+      } else {
+        frameImg.src = imageSrc;
+        frameBtnEl.style.display = "none";
+        console.log(frameImg);
+        document.querySelector(".frame").style.display = "block";
+      }
+    } else {
+    }
+  });
+});
