@@ -1,4 +1,5 @@
 let model = {};
+const dojo = {};
 
 let theKata;
 
@@ -12,16 +13,16 @@ model.init = function () {
 /**
  * Audio Section
  */
-
+// Needed & Working
 model.getAudio = function () {
   let audio = model.getLocalStore("dojo")[0].meta.audio;
   return audio;
 };
 
+// Needed & Working
 model.getSlideStorage = function () {
-  let storageArray = model.getLocalStore("dojo")[0].meta.storage;
-  console.log(storageArray);
-  return storageArray;
+  let podJSON = model.getLocalStore("dojo")[0].meta.storage;
+  return podJSON;
 };
 
 model.getImages = function () {
@@ -29,15 +30,18 @@ model.getImages = function () {
   return galleryArray;
 };
 
+// Needed & Working but not much in use
 model.getLocalStore = function (key) {
   let store = JSON.parse(localStorage.getItem(key));
   return store;
 };
 
+//Much Needed & Working
 model.updateLocalStore = function () {
   domLoad();
 };
 
+// Needed & in use
 model.removeLocalStorage = function (data) {};
 
 theKata = [
@@ -47,38 +51,12 @@ theKata = [
     mainImage: "", // On thumbinal Click, get src and update this property
     katana: {
       start: 0, // On Start, On Clone, on SetValue update, update this value
-      end: 70, // On Start, On Clone, on SetValue update, update this value
+      end: 15, // On Start, On Clone, on SetValue update, update this value
       color: "#008877", //On start, On Clone
     },
     region: {
-      start: 50, // On Start, On Clone, on SetValue update, update this value
-      end: 70, // On Start, On Clone, on SetValue update, update this value
-      color: "#008877", //On start, On Clone
-    },
-    slide: {
-      // On Save
-      title: "title",
-      bullets: [
-        "point number one",
-        "point number two",
-        "point number three",
-        "point number four",
-      ],
-    },
-  },
-
-  {
-    id: 2, // Make Global, Get from an Increment counter
-    index: 1, // Make Global, as above
-    mainImage: "", // On thumbinal Click, get src and update this property
-    katana: {
-      start: 70, // On Start, On Clone, on SetValue update, update this value
-      end: 70, // On Start, On Clone, on SetValue update, update this value
-      color: "#008877", //On start, On Clone
-    },
-    region: {
-      start: 50, // On Start, On Clone, on SetValue update, update this value
-      end: 70, // On Start, On Clone, on SetValue update, update this value
+      start: 15, // On Start, On Clone, on SetValue update, update this value
+      end: 30, // On Start, On Clone, on SetValue update, update this value
       color: "#008877", //On start, On Clone
     },
     slide: {
@@ -102,24 +80,6 @@ On Image Click, Clipper Update, Image Edit & Slide save, update local storage an
 
 */
 
-let slideItems = {
-  // On Save
-  title: "title",
-  bullets: [
-    "point number one",
-    "point number two",
-    "point number three",
-    "point number four",
-  ],
-};
-
-let bullets = [
-  "point number one",
-  "point number two",
-  "point number three",
-  "point number four",
-];
-
 /**
  * Katana is the Clipper
  * @param start and @param end and calculated from range input value
@@ -127,8 +87,16 @@ let bullets = [
  */
 class Katana {
   constructor(start, end, color) {
-    this.startTime = start;
-    this.startEnd = end;
+    this.start = start;
+    this.end = end;
+    this.color = color;
+  }
+}
+
+class KatanaRegion {
+  constructor(start, end, color) {
+    this.start = start;
+    this.end = end;
     this.color = color;
   }
 }
@@ -143,7 +111,7 @@ class Kata {
     this.id = id;
     this.index = index;
     this.mainImage = mainImage;
-    this.clipper = clipperItem;
+    this.katana = clipperItem;
     this.region = region;
     this.slide = slide;
   }
@@ -161,46 +129,29 @@ class TextSlide {
     this.bgImage = bgImage;
   }
 }
-let slideItem = new TextSlide("The title", bullets);
-let clipperItem = new Katana(56, 78, "#99008");
-let kataa = new Kata(1, 0, "", clipperItem, "", slideItem);
-console.log(kataa);
+// let slideItem = new TextSlide("The title", bullets);
+// let clipperItem = new Katana(56, 78, "#99008");
+// let kataa = new Kata(1, 0, "", clipperItem, "", slideItem);
+// console.log(kataa);
 
 class Storage {
-  static getKata() {
+  static getKata(data) {
     let pfimbi;
 
-    if (localStorage.getItem("Pfimbi-Yangu") === null) {
+    if (localStorage.getItem(data) === null) {
       pfimbi = [];
     } else {
-      pfimbi = JSON.parse(localStorage.getItem("Pfimbi-Yangu"));
+      pfimbi = JSON.parse(localStorage.getItem(data));
     }
 
     return pfimbi;
   }
 
-  static addKata(leKata) {
-    let pfimbi = Storage.getKata();
+  static addKata(kataOject, storageName) {
+    let pfimbi = Storage.getKata(storageName);
 
-    pfimbi.push(leKata);
-    localStorage.setItem("Pfimbi-Yangu", JSON.stringify(pfimbi));
-  }
-
-  static updateKata(index, newValue) {
-    let pfimbi = Storage.getKata();
-
-    pfimbi[index].mainImage = newValue;
-    console.log(pfimbi[index]);
-    pfimbi.splice(index, 1, pfimbi[index]);
-
-    if (localStorage.getItem("Pfimbi-Yangu") !== null) {
-      console.log("munezvinhu");
-      let masinh = JSON.stringify(pfimbi);
-      console.log("Masinh:");
-      console.log(masinh);
-      localStorage.setItem("Pfimbi-Yangu", masinh);
-      console.log("I have Saved!");
-    }
+    pfimbi.push(kataOject);
+    localStorage.setItem(storageName, JSON.stringify(pfimbi));
   }
 
   static removeKata(leID) {
@@ -216,6 +167,68 @@ class Storage {
   }
 }
 
-localStorage.removeItem("Pfimbi-Yangu");
+localStorage.removeItem("kata");
 
-Storage.addKata(theKata);
+// Start Here
+
+let podJSON = model.getLocalStore("dojo")[0].meta.storage;
+//let podJSON = "zvinhu";
+
+let localStorageContent = Storage.getKata("kata");
+storageStatus = localStorageContent.length;
+
+console.log(localStorageContent);
+console.log();
+
+if (0 === storageStatus && podJSON === "") {
+  dojo.kataBin = []; //Debut
+  let kata = new Kata(
+    1,
+    0,
+    "",
+    { start: 0, end: 15 },
+    { start: 0, end: 15 },
+    {
+      slide_title: "Write Your Slide Title",
+      bullets: ["write point number one here"],
+    }
+  );
+  dojo.kataBin.push(kata);
+  dojo.startTime = kata.katana.start;
+  dojo.startPercent = 0;
+  dojo.endPercent = 10;
+
+  localStorage.setItem("kata", JSON.stringify(dojo.kataBin));
+} else if (0 === storageStatus && podJSON !== "") {
+  console.log("muPod Munezvinu");
+  dojo.kataBin = [];
+  dojo.kataBin.push(podJSON);
+  localStorage.setItem("kata", JSON.stringify(dojo.kataBin));
+  dojo.startTime = 0;
+  dojo.startPercent = 0;
+  dojo.endPercent = 10;
+} else {
+  console.log("ndatora storage kare");
+  dojo.kataBin = Storage.getKata("kata");
+  dojo.startTime = 0;
+  dojo.startPercent = 0;
+  dojo.endPercent = 10;
+}
+
+/**
+ *
+ * @param {*} url  postUrl from data.js which is a REST API endpoint
+ * @param {*} postData JSON data containing Edit cuts information
+ */
+function addPosts(url, postData) {
+  fetch(url, {
+    method: "PUT",
+    headers: {
+      Accept: "application/json, text/plain, */*",
+      "Content-type": "application/json",
+    },
+    body: postData,
+  })
+    .then((response) => response.json())
+    .then((data) => console.log(data));
+}

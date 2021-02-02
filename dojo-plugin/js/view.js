@@ -12,26 +12,42 @@ let addAudioBtn = document.getElementById("add_audio_btn"),
   thumbImg = thumbClone.children[0],
   thumbBin = document.querySelector(".clip_bin");
 
-console.log(thumbClone);
-console.log(thumbImg);
+let thumbLeft = document.getElementById(`thumb_left_1`),
+  thumbRight = document.getElementById(`thumb_right_1`),
+  //frame = document.getElementById(".slider-image"),
+  range = document.getElementById(`clipper_range_1`);
 
 let clipper_ID = 1;
 let regionsObj = {};
-const dojo = {};
+// Global Data object to keep track of App Status
 let region;
 
+/**
+ *
+ * Initialise the View
+ */
 view.init = function () {
   //view.clipperControls(clipper_ID);
 };
+
+/**
+ *
+ * Controls the Editing Clippers
+ *
+ * @param value is passed in from the Range Slider currently clicked
+ *
+ * STATUS: Working as Intended
+ * TODO: Control it remotely via the Wavesurfer Regions
+ */
 
 view.clipperControls = function (value) {
   // Get a dynamic DOM
   inputLeft = document.getElementById(`input_left_${value}`);
   inputRight = document.getElementById(`input_right_${value}`);
-  const thumbLeft = document.getElementById(`thumb_left_${value}`),
-    thumbRight = document.getElementById(`thumb_right_${value}`),
-    //frame = document.getElementById(".slider-image"),
-    range = document.getElementById(`clipper_range_${value}`);
+  thumbLeft = document.getElementById(`thumb_left_${value}`);
+  thumbRight = document.getElementById(`thumb_right_${value}`);
+  //frame = document.getElementById(".slider-image"),
+  range = document.getElementById(`clipper_range_${value}`);
 
   function setLeftValue() {
     let beginInput = inputLeft,
@@ -49,9 +65,14 @@ view.clipperControls = function (value) {
     range.style.left = beginPercent + "%";
     dojo.beginPercent = beginPercent;
     dojo.beginTime = (dojo.beginPercent * dojo.duration) / 100;
+
+    //Update Regions according
     region[dojo.activeIndex].update({
       start: dojo.beginTime,
     });
+
+    // Update Dojo KataBin Object
+    dojo.kataBin[dojo.activeIndex].katana.start = dojo.beginTime;
   }
 
   function setRightValue() {
@@ -73,63 +94,72 @@ view.clipperControls = function (value) {
     region[dojo.activeIndex].update({
       end: dojo.endTime,
     });
+
+    dojo.kataBin[dojo.activeIndex].katana.end = dojo.endTime;
   }
 
   inputLeft.addEventListener("input", setLeftValue);
   inputRight.addEventListener("input", setRightValue);
 };
 
-// TODO: Refine my Tag selection
+/**
+ * Collects the id of the current clicked range input in the DOM
+ *
+ * STATUS: Working as Intended
+ */
+//
 function range_ids() {
-  var bts_sliders = document.getElementsByTagName("input");
-  var buttonsCount = bts_sliders.length;
-  for (var i = 0; i < buttonsCount; i += 1) {
-    bts_sliders[i].onmousedown = function (e) {
-      let index = this.id;
+  // Get the Behind the Scenes slider ID
+  var bts_sliders = document.querySelectorAll(".bts-sliders input");
 
+  var slidersCount = bts_sliders.length;
+  for (var i = 0; i < slidersCount; i += 1) {
+    bts_sliders[i].onmousedown = function (e) {
+      // Grag the ID of the selected range slider
+      let index = this.id;
+      console.log(index);
+
+      // Split the ID String to get the number at the end, save it as the ID value to be passed to the control clippers
       let strArray = index.split("_");
-      console.log(strArray);
       let id = strArray[strArray.length - 1];
       id = parseInt(id);
+
+      // Determine Active Index By Click
+      // TODO: Active Index Should be determined by current time and multiple items can be in active index
       dojo.activeIndex = id - 1;
       console.log(dojo.activeIndex);
-      if (null === id) {
-        let id = 1;
+
+      if (id) {
+        view.clipperControls(id);
         view.clipperControls(id);
       } else {
-        view.clipperControls(id);
+        console.log("no id");
       }
+
+      // if (null === id) {
+      //   let id = 1;
+      // } else {
+      // }
     };
   }
 }
 
 /**
- * Calls initial View methods
- *
- */
-
-// Last Wrapper
-
-function cloneClipper() {}
-
-/**
  * Audio Wave Section
  *
+ * STATUS: Working as Intende
+ * TODO: Fix Resize behavior
+ * TODO: Fix Seeking behavior
  */
 
 addAudioBtn.addEventListener("click", wavePlayer);
 
 function wavePlayer() {
-  const btn = {
-    play: document.getElementById("btn-play"),
-    pause: document.getElementById("btn-pause"),
-    stop: document.getElementById("btn-stop"),
-  };
-
   const timeStampEl = document.getElementById("time-stamp");
   const waveEl = document.getElementById("audio_spectrum");
-  var CursorPlugin = window.WaveSurfer.cursor;
+  let CursorPlugin = window.WaveSurfer.cursor;
 
+  //Start Wavesurfer
   let Spectrum = WaveSurfer.create({
     container: "#audio_spectrum",
     progressColor: "#03a9f4",
@@ -143,14 +173,7 @@ function wavePlayer() {
       //Regions Plugin
       WaveSurfer.regions.create({
         regionsMinLength: 2,
-        regions: [
-          {
-            start: dojo.currentTime,
-            end: 40,
-            loop: false,
-            color: "hsla(400, 100%, 30%, 0.5)",
-          },
-        ],
+        regions: [],
         dragSelection: {
           slop: 5,
         },
@@ -159,10 +182,11 @@ function wavePlayer() {
       WaveSurfer.timeline.create({
         container: "#wave-timeline",
       }),
-      //Regions Plugin
+      //Cursor Plugin
       CursorPlugin.create({
         showTime: "#cursor-time",
       }),
+      // Mini Map Plugin
       WaveSurfer.minimap.create({
         container: "#mini_wave",
         waveColor: "#777",
@@ -178,49 +202,44 @@ function wavePlayer() {
   };
 
   // Play Button
+  // TODO: Add Stop Button
+  // TODO: Add Skip Forward and Skip Backwards buttons
+  // TODO: Add Volume range Input
   document
     .querySelector("#play_btn")
     .addEventListener("click", Spectrum.playPause.bind(Spectrum));
 
-  //   // Stop Button
-  //   btn.stop.addEventListener(
-  //     "click",
-  //     () => {
-  //       Spectrum.stop();
-
-  //       btn.stop.disabled = true;
-  //       btn.pause.disabled = false;
-  //       btn.play.disabled = false;
-  //       waveEl.scrollTo(0, 0);
-  //     },
-  //     false
-  //   );
-
-  //   Spectrum.on("ready", () => {
-  //     btn.play.disabled = false;
-  //   });
-
+  /**
+   * On Zoom, Calculate Wavesurfer Width and apply it to clipper bin div and timeline div
+   * The wave is drawn via a series of canvas elements
+   */
   Spectrum.on("zoom", function () {
+    // Harvest the canvas elements from the DOM
     let sects = [];
     let cont = document.getElementById("audio_spectrum");
     let clip_area = document.querySelector(".clipper_area");
     let canva = cont.querySelectorAll("canvas");
     var timeWave = document.getElementById("wave-timeline");
+
+    //Get the width of each canvas item and add it to an array
     canva.forEach((canvas) => {
       let sect = canvas.style.width;
       sect = parseInt(sect, 10);
       sects.push(sect);
     });
 
-    // Getting sum of numbers
+    // Getting sum of the canvas widths in the array and divide by 2 because somehow their are duplicated
     var totalW = sects.reduce(function (a, b) {
       return a + b;
     }, 0);
     totalW = totalW / 2;
+
+    // Set the new width
     clip_area.style.width = `${totalW}px`;
     timeWave.style.width = `${totalW}px`;
   });
 
+  //TODO: Sort this out
   window.addEventListener(
     "resize",
     () => {
@@ -241,19 +260,28 @@ function wavePlayer() {
     },
     false
   );
-
+  //Get region list
   region = Object.values(Spectrum.regions.list);
 
-  console.log(region);
-
+  /**
+   * The Actual Editor
+   *
+   * STATUS: Still a bit rough, more needs to happen here
+   * TODO: Something about Active index maybe? move code into functions
+   */
   Spectrum.on("audioprocess", function () {
+    console.log(dojo.kataBin);
+    // Get latest data for each Katana from kataBin Global Object
     dojo.kataBin.forEach((clipper, index) => {
-      let imageSrc = clipper[index].mainImage,
-        startClip = clipper[index].katana.start,
-        endClip = clipper[index].katana.end,
-        isActive = false;
-      console.log(endClip);
+      let imageSrc = clipper.mainImage,
+        startClip = clipper.katana.start,
+        endClip = clipper.katana.end,
+        isActive = false; // TODO: Could be my active index fix
+
+      // Determine what happens when current clip is supposed active
       if (dojo.currentTime >= startClip && dojo.currentTime <= endClip) {
+        isActive = true;
+        console.log(index + " is " + isActive);
         //Show or Hide Slide
         if ("" === imageSrc) {
           frameBtnEl.style.display = "flex";
@@ -262,10 +290,14 @@ function wavePlayer() {
           frameImg.src = imageSrc;
           frameBtnEl.style.display = "none";
           document.querySelector(".frame").style.display = "block";
+          console.log("No Image");
           console.log(dojo.currentTime);
         }
       } else {
-        console.log("Slider Gone");
+        isActive = false;
+        console.log("This condition is not true");
+        console.log(index + " is " + isActive);
+        //console.log("Slider Gone");
         frameBtnEl.style.display = "flex";
         frameEl.style.display = "none";
       }
@@ -302,7 +334,72 @@ function wavePlayer() {
   Spectrum.on("ready", function () {
     dojo.duration = Spectrum.getDuration();
     dojo.currentTime = Spectrum.getCurrentTime();
-    dojo.kataBin = Storage.getKata();
+
+    function timeStatusUpdate() {}
+
+    // Read Everything from Local Storage
+    dojo.endTime = (dojo.endPercent * dojo.duration) / 100; //TODO: as above
+
+    console.log("ON READY: ");
+    console.log(dojo.startPercent);
+    console.log(dojo.endPercent);
+    console.log(dojo.kataBin);
+    console.log(dojo.endTime);
+
+    timeStatusUpdate();
+
+    //TODO: Wrap in a forEach loop, Read every clipper in local storage
+
+    dojo.kataBin.forEach((slide) => {
+      let start = slide.region.start,
+        end = dojo.endTime;
+
+      let newRegion = Spectrum.addRegion({
+        start: start,
+        end: end,
+        color: "rgba(0, 0, 0, 0.4)",
+      });
+
+      region.push(newRegion);
+
+      // dojo.startTime = dojo.endTime;
+      // dojo.startPercent = dojo.endPercent;
+      // dojo.endPercent = dojo.endPercent + 10;
+      // dojo.endTime = (dojo.endPercent * dojo.duration) / 100;
+    });
+
+    UI.buildEditor(); // Reads from local storage
+
+    let addBtn = document.getElementById("clone_btn");
+    addBtn.addEventListener("click", () => {
+      //TODO: Get previous region end time
+      let clipperBin = document.getElementById("clipper_bin"),
+        binArray = clipperBin.querySelectorAll(".clipper_wrapper"),
+        newId = binArray.length + 1,
+        indexx = parseInt(newId) - 1;
+
+      let newRegion = Spectrum.addRegion({
+        start: dojo.startTime,
+        end: dojo.endTime,
+        color: "rgba(0, 0, 0, 0.4)",
+      });
+
+      region.push(newRegion);
+      UI.buildClipper();
+      let tsa = new Katana(dojo.startPercent, dojo.endPercent, "");
+      let tsaa = new KatanaRegion(dojo.startTime, dojo.endTime);
+      let tsaah = new Kata(newId, indexx, "", tsa, tsaa, {});
+
+      Storage.addKata(tsaah, "kata");
+
+      console.log(tsaah);
+    });
+
+    range_ids();
+  });
+
+  Spectrum.on("seek", function () {
+    dojo.currentTime = Spectrum.getCurrentTime();
   });
 
   let timelineWidth = document.getElementById("audio_spectrum").children[2];
@@ -312,23 +409,14 @@ function wavePlayer() {
   let w = window.innerWidth;
 
   formBlock.remove();
-
-  let addBtn = document.getElementById("plus_1");
-  addBtn.addEventListener("click", () => {
-    //TODO: Get previous region end time
-    let dhdh = 30;
-    let nnew = Spectrum.addRegion({
-      start: dhdh,
-      end: 100,
-      color: "rgba(0, 0, 0, 0.4)",
-    });
-
-    region.push(nnew);
-    cloneClipper();
-  });
-
-  range_ids();
 }
+
+/**
+ * Syncronizing the Scroll of the Waveform and Edit Clippers on Zoom
+ *
+ * STATUS: Working as intended
+ * TODO: Remove Code for extra unecessary div, since Waveform and Minimap have synced up on their own
+ */
 
 var isSyncingTopScroll = false;
 var isSyncingMiddleScroll = false;
@@ -367,57 +455,19 @@ bottomDiv.onscroll = function () {
   isSyncingBottomScroll = false;
 };
 
-/*
-
-I need to loop through the controls and serialise them
-Each DOM related element must have an ID
-I need to transfer controls to the Wavesurfer plays
-
-So I need a function that generates a new serialise clip in the dom
-the clip should matched to it's controls and values
-
-So I either the event listener should pass in it's id
-Or it's methods should be part of the class
-
-A method that remembers how many times it has been requested
-On successful creation increament, and decreament on removal
-
-var buttons = document.getElementsByTagName("button");
-var buttonsCount = buttons.length;
-for (var i = 0; i < buttonsCount; i += 1) {
-    buttons[i].onclick = function(e) {
-        alert(this.id);
-    };
-}​
-
-*/
-
-// document
-//       .querySelector('[data-action="play-region-2"]')
-//       .addEventListener("click", function () {
-//         let region = Object.values(Spectrum.regions.list)[1];
-//         region.playLoop();
-//       });
-
-// <img id="img_id_1" src="url/puc1.jpg" onclick="select_img(this.src)"/>
-
-// function select_img(src) {
-//   alert(src);
-//   document.getElementById("img_id_2").value=src;
-// }
-
-// // For
-// onResize(timeInSeconds, 'start');
-
-// region[0].play()
-
-// region[0].on("udpate-end", () => {
-//   console.log(region[0].end);
-// });
+/**
+ * Classes to Restructure my UI
+ *
+ * Mostly Methods to build & destryo the DOM
+ * They corresond with related Model/Storage methods
+ *
+ * STATUS: WIP Not fully operationalise, not evey method that can be here is here
+ * TODO: Not sure
+ */
 
 class UI {
   static buildEditor() {
-    const clippers = Storage.getKata();
+    const clippers = dojo.kataBin;
 
     clippers.forEach((clipper) => UI.buildClipper(clipper));
   }
@@ -425,29 +475,74 @@ class UI {
   static buildClipper() {
     let clipperEl = document.getElementById("clipper_1"),
       clipperBin = document.getElementById("clipper_bin"),
-      binArray = document.querySelectorAll(".clipper_wrapper"),
+      binArray = clipperBin.querySelectorAll(".clipper_wrapper"),
       newId = binArray.length + 1,
-      listEl = document.createElement("li"),
-      newClipper = clipperEl.cloneNode(true);
+      indexx = parseInt(newId) - 1;
+    //listEl = document.createElement("li"),
+
+    let newClipper = clipperEl.cloneNode(true);
+    if (0 === indexx) {
+      let removableEl = document.querySelector("#removable");
+      removableEl.remove();
+    }
 
     newClipper.setAttribute("id", `clipper_${newId}`);
 
     function incrementIds(idAttr) {
-      let childEl = newClipper.querySelector(`#${id}_1`),
-        indexx = parse.int(newId) - 1;
+      let childEl = newClipper.querySelector(`#${idAttr}_1`);
       childEl.setAttribute("id", `${idAttr}_${newId}`);
       childEl.setAttribute("data-index", `${indexx}`);
     }
 
-    incrementIds("input_left");
-    incrementIds("input_right");
-    incrementIds("thumb_left");
-    incrementIds("thumb_right");
-    incrementIds("clipper_range");
+    if (indexx > 0) {
+      incrementIds("input_left");
+      incrementIds("input_right");
+      incrementIds("thumb_left");
+      incrementIds("thumb_right");
+      incrementIds("clipper_range");
+    }
 
-    listEl.appendChild(newClipper);
-    clipperBin.appendChild(listEl);
+    function incrementInputValues() {
+      let inputLeft = newClipper.querySelector(`#input_left_${newId}`),
+        inputRight = newClipper.querySelector(`#input_right_${newId}`),
+        thumbLeft = newClipper.querySelector(`#thumb_left_${newId}`),
+        thumbRight = newClipper.querySelector(`#thumb_right_${newId}`),
+        clipperRange = newClipper.querySelector(`#clipper_range_${newId}`);
+
+      inputLeft.value = dojo.startPercent;
+      inputLeft.step = 0.0001;
+      inputRight.value = dojo.endPercent;
+      inputRight.step = 0.0001;
+      thumbLeft.style.left = dojo.startPercent + "%";
+      thumbRight.style.right = 100 - dojo.endPercent + "%";
+      clipperRange.style.left = dojo.startPercent + "%";
+      clipperRange.style.right = 100 - dojo.endPercent + "%";
+    }
+
+    incrementInputValues();
+
+    if (indexx === 0) {
+      console.log("When 0:");
+      console.log(dojo.kataBin);
+      dojo.kataBin[0].katana.end = dojo.endPercent;
+      dojo.kataBin[0].region.end = dojo.endTime;
+      localStorage.removeItem("kata");
+      localStorage.setItem("kata", JSON.stringify(dojo.kataBin));
+      console.log(dojo.kataBin);
+    }
+
+    //listEl.appendChild(newClipper);
+    clipperBin.appendChild(newClipper);
     range_ids();
+
+    console.log(clipperBin);
+    // Update Status
+    dojo.startTime = dojo.endTime;
+    dojo.startPercent = dojo.endPercent;
+    dojo.endPercent = dojo.endPercent + 10;
+    dojo.endTime = (dojo.endPercent * dojo.duration) / 100;
+    console.log("On Build Clipper");
+    console.log(dojo.endTime);
 
     //TODO: Build WaveSurfer Regions using regions object
   }
@@ -464,9 +559,9 @@ class UI {
   static sanitizeDOM() {}
 }
 
-dojo.clipperStatus = function () {
-  console.log("Im running");
-};
+/**
+ * Button that Loads Gallery thumbnails
+ */
 
 galleryBtn.addEventListener("click", () => {
   let gallArray = model.getImages();
@@ -479,38 +574,43 @@ galleryBtn.addEventListener("click", () => {
   });
 });
 
+/**
+ * Button that selects an Image for a Clip
+ *  It uses the thumbnail data index to drill back to the thumbnail object and find the corresponding main Image
+ *  Then saves selected image url to local storage paired with it's Clipper
+ *  STATUS: It's a little too procedural for my liking
+ *  TODO: Needs refactoring and seperation of model operations from UI Operations
+ */
 thumbBin.addEventListener("click", (e) => {
   e.preventDefault();
 
+  schwnk(e);
+});
+
+function schwnk(e) {
   let gallArray = model.getImages(),
     ii = parseInt(e.target.getAttribute("data-index"));
   console.log(gallArray[ii].source_url);
 
   dojo.kataBin.forEach((clipper, index) => {
-    let imageSrc = clipper[index].mainImage,
-      startClip = clipper[index].katana.start,
-      endClip = clipper[index].katana.end,
+    let imageSrc = clipper.mainImage,
+      startClip = clipper.katana.start,
+      endClip = clipper.katana.end,
       isActive = false;
 
     if (dojo.currentTime >= startClip && dojo.currentTime <= endClip) {
-      console.log("this Kata is active");
+      console.log(index + ": this Kata is active");
       isActive = true;
       imageSrc = gallArray[ii].source_url;
 
-      dojo.kataBin[0][index].mainImage = imageSrc;
+      dojo.kataBin[index].mainImage = imageSrc;
 
-      let yas = Storage.getKata();
+      // let yas = Storage.getKata();
 
-      console.log(yas);
+      // yas.[index].mainImage = imageSrc;
 
-      yas[0][index].mainImage = imageSrc;
-
-      console.log(yas[index]);
-      console.log(yas[0][index].mainImage);
-
-      localStorage.setItem("Pfimbi-Yangu", JSON.stringify(yas));
+      // localStorage.setItem("Pfimbi-Yangu", JSON.stringify(yas));
       //dojo.kataBin = Storage.getKata();
-      console.log(Storage.getKata());
 
       if ("" === imageSrc) {
         frameBtnEl.style.display = "flex";
@@ -518,10 +618,78 @@ thumbBin.addEventListener("click", (e) => {
       } else {
         frameImg.src = imageSrc;
         frameBtnEl.style.display = "none";
-        console.log(frameImg);
         document.querySelector(".frame").style.display = "block";
       }
     } else {
+      isActive = false;
+      console.log(index + ": this Kata is NOT active");
     }
   });
-});
+}
+
+/*
+
+I need to set up funnels for my object constructors
+The data for the first clip will be inserted straight into pods field, maybe?
+Or hardcoded in DOM and other initial variable values?
+The Object is the one I should store,
+
+1. On app start
+2. On pic select
+3. On clipper update
+4. On Clipper Add
+5. On Clipper Delete
+6. On Project Save
+
+The latest version of the object shall be stored in dojo.kataBin
+
+The Object is the one I should get
+
+1. On app start to build DOM based on default or previous values
+2. On Play
+
+*/
+
+/*
+
+TODO:
+
+I need to figure out the first clip(s)
+I neet to figure out the first build
+But first, the Editor needs to be right
+
+Instantiate Katana Class constructor
+Instantiate TextSlide Class constructor
+Instantiate Kata Class constructor
+
+Where does Katana get her stuff from?
+-- (I need to figure out Start End times stuff)
+
+Where doe TextSlide Get her stuff from?
+-- From the form in the text editor
+
+Where does Kata get her other stuff?
+-- id: DOM or Counter
+-- index: DOM or Counter
+-- mainImage: from Bin thumbs
+-- Katana: From katana object
+-- region
+-- slide from Slide object
+
+for each clipper, 
+  if them time is right, then proceeced
+    setup image container
+    if no image is in container, prompt the user to add an image
+    if image is in container, show the image
+  else, 
+
+  This check only happens on image click
+  And on audio process 
+
+  Active Index checker is now working, always has been, 
+  its my Storage that has a problem
+
+
+
+
+*/

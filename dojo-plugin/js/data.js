@@ -7,7 +7,7 @@ let galleryURL =
 let postURL = dynamicData.restURL + "dojo/" + dynamicData.dojo_id + "";
 let data = [];
 
-async function audioData() {
+async function postData() {
   const fetchResponse = await fetch(postURL);
   const postJSON = await fetchResponse.json();
   const audioLink = postJSON.audio;
@@ -25,7 +25,7 @@ async function domLoad() {
   let kata = {};
 
   try {
-    kata.meta = await audioData();
+    kata.meta = await postData();
     kata.gallery = await galleryData();
   } catch (e) {
     console.log("Error!: " + e);

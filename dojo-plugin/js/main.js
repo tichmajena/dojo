@@ -45,24 +45,7 @@ console.log(launchWPMedia);
 
 launchWPMedia.addEventListener("click", open_media_uploader_gallery);
 
-//   discharge = document.getElementById("ajax-div"),
-//   sliderObj = {},
-//   uploadBtn = document.getElementById("slide-upload");
-// console.log("ndiripo!");
 
-// console.log(dynamicData.restURL);
-// console.log(dynamicData.dojo_id);
-
-// console.log(connect);
-
-// if (btn) {
-//   btn.addEventListener("click", () => {
-//     discharge.innerHTML = "";
-//     console.log(btn);
-//     console.log("I have been clicked");
-
-//   });
-// }
 
 // function renderHTML(ourData) {
 //   let i;

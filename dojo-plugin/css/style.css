@@ -18,6 +18,16 @@ input[type="range"]::-webkit-slider-thumb {
   /* -webkit-appearance: none; */
 }
 
+input[type="range"]::-moz-slider-thumb {
+  pointer-events: all;
+  width: 30px;
+  height: 30px;
+  border-radius: 0px;
+  border: none;
+  background-color: red;
+  /* -webkit-appearance: none; */
+}
+
 .clipper_wrapper {
   position: relative;
 }
