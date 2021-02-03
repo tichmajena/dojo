@@ -173,7 +173,7 @@ class Storage {
   }
 }
 
-localStorage.removeItem("kata");
+//localStorage.removeItem("kata");
 
 // Start Here
 
@@ -192,8 +192,8 @@ if (0 === storageStatus && podJSON === "") {
     1,
     0,
     "",
-    { start: 0, end: 15 },
-    { start: 0, end: 15 },
+    { start: 0, end: "default" },
+    { start: 0, end: "default" },
     {
       slide_title: "Write Your Slide Title",
       bullets: ["write point number one here"],

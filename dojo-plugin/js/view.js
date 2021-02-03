@@ -20,6 +20,7 @@ let thumbLeft = document.getElementById(`thumb_left_1`),
 
 let clipper_ID = 1;
 let regionsObj = {};
+let isClone;
 // Global Data object to keep track of App Status
 let region;
 
@@ -393,13 +394,15 @@ function wavePlayer() {
       // dojo.endTime = (dojo.endPercent * dojo.duration) / 100;
     });
 
-    /**
-     * ON CLICK
+    /**=================================================================
+     * ON CLICK ========================================================
+     * =================================================================
      */
 
     let addBtn = document.getElementById("clone_btn");
     addBtn.addEventListener("click", () => {
       //TODO: Get previous region end time
+      isClone = true;
       let clipperBin = document.getElementById("clipper_bin"),
         binArray = clipperBin.querySelectorAll(".clipper_wrapper"),
         newId = binArray.length + 1,
@@ -421,11 +424,14 @@ function wavePlayer() {
         color: "rgba(0, 0, 0, 0.4)",
       });
 
-      UI.buildClipper();
       let tsa = new Katana(dojo.startPercent, dojo.endPercent, "");
+
+      UI.buildClipper();
+
       let tsaa = new KatanaRegion(dojo.startTime, dojo.endTime);
       let tsaah = new Kata(newId, indexx, "", tsa, tsaa, {});
 
+      dojo.kataBin.push(tsaah);
       Storage.addKata(tsaah, "kata");
 
       console.log(tsaah);
@@ -509,12 +515,20 @@ bottomDiv.onscroll = function () {
 
 class UI {
   static buildEditor() {
-    const clippers = dojo.kataBin;
+    const clippers = Storage.getKata("kata");
+
+    console.log(clippers);
 
     clippers.forEach((clipper) => UI.buildClipper(clipper));
+    // Update Status
+    dojo.startTime = dojo.endTime;
+    dojo.startPercent = dojo.endPercent;
+    dojo.endTime = (dojo.endPercent * dojo.duration) / 100;
+    dojo.endPercent = dojo.endPercent + 10;
   }
 
   static buildClipper() {
+    // Get Hidden Cloneable Element, derive ID and Index from length of clipper array
     let clipperEl = document.getElementById("clipper_1"),
       clipperBin = document.getElementById("clipper_bin"),
       binArray = clipperBin.querySelectorAll(".clipper_wrapper"),
@@ -522,20 +536,35 @@ class UI {
       indexx = parseInt(newId) - 1;
     //listEl = document.createElement("li"),
 
+    // Clone The Clipper
     let newClipper = clipperEl.cloneNode(true);
     if (0 === indexx) {
       let removableEl = document.querySelector("#removable");
       removableEl.remove();
     }
 
+    // Give the clipper a new ID
     newClipper.setAttribute("id", `clipper_${newId}`);
 
+    // Increment the IDs of the Children
     function incrementIds(idAttr) {
       let childEl = newClipper.querySelector(`#${idAttr}_1`);
       childEl.setAttribute("id", `${idAttr}_${newId}`);
       childEl.setAttribute("data-index", `${indexx}`);
     }
 
+    // Replace Default Values with Proportional Values
+    // In the State and In the Storage replace in local storage
+    if (dojo.kataBin[0].katana.end === "default") {
+      console.log("When 0:");
+      console.log(dojo.kataBin);
+      dojo.kataBin[0].katana.end = dojo.endPercent;
+      dojo.kataBin[0].region.end = dojo.endTime;
+      Storage.updateKata("kata", dojo.kataBin[0], 0);
+      console.log(dojo.kataBin);
+    }
+
+    // Increment the IDs Only if index is O, if not just clone
     if (indexx > 0) {
       incrementIds("input_left");
       incrementIds("input_right");
@@ -545,50 +574,49 @@ class UI {
     }
 
     function incrementInputValues() {
+      // Get the DOM of newly cloned Clipper
       let inputLeft = newClipper.querySelector(`#input_left_${newId}`),
         inputRight = newClipper.querySelector(`#input_right_${newId}`),
         thumbLeft = newClipper.querySelector(`#thumb_left_${newId}`),
         thumbRight = newClipper.querySelector(`#thumb_right_${newId}`),
         clipperRange = newClipper.querySelector(`#clipper_range_${newId}`);
 
-      inputLeft.value = dojo.startPercent;
-      inputLeft.step = 0.0001;
-      inputRight.value = dojo.endPercent;
-      inputRight.step = 0.0001;
-      thumbLeft.style.left = dojo.startPercent + "%";
-      thumbRight.style.right = 100 - dojo.endPercent + "%";
-      clipperRange.style.left = dojo.startPercent + "%";
-      clipperRange.style.right = 100 - dojo.endPercent + "%";
+      // Set Values in proportion to audio length which has been hoisted
+      // Read These from storage
+      if (isClone === true) {
+        // If cloning use hoisted Values
+        inputLeft.value = dojo.startPercent;
+        inputLeft.step = 0.01;
+        inputRight.value = dojo.endPercent;
+        inputRight.step = 0.01;
+        thumbLeft.style.left = dojo.startPercent + "%";
+        thumbRight.style.right = 100 - dojo.endPercent + "%";
+        clipperRange.style.left = dojo.startPercent + "%";
+        clipperRange.style.right = 100 - dojo.endPercent + "%";
+
+        // Then Update Status
+        dojo.startTime = dojo.endTime;
+        dojo.startPercent = dojo.endPercent;
+        dojo.endTime = (dojo.endPercent * dojo.duration) / 100;
+        dojo.endPercent = dojo.endPercent + 10;
+      } else {
+        inputLeft.value = dojo.kataBin[indexx].katana.start;
+        inputLeft.step = 0.01;
+        inputRight.value = dojo.kataBin[indexx].katana.end;
+        inputRight.step = 0.01;
+        thumbLeft.style.left = dojo.kataBin[indexx].katana.start + "%";
+        thumbRight.style.right = 100 - dojo.kataBin[indexx].katana.end + "%";
+        clipperRange.style.left = dojo.kataBin[indexx].katana.start + "%";
+        clipperRange.style.right = 100 - dojo.kataBin[indexx].katana.end + "%";
+      }
     }
 
     incrementInputValues();
 
-    if (indexx === 0) {
-      console.log("When 0:");
-      console.log(dojo.kataBin);
-      dojo.kataBin[0].katana.end = dojo.endPercent;
-      dojo.kataBin[0].region.end = dojo.endTime;
-      localStorage.removeItem("kata");
-      localStorage.setItem("kata", JSON.stringify(dojo.kataBin));
-      console.log(dojo.kataBin);
-    }
-
     //listEl.appendChild(newClipper);
     clipperBin.appendChild(newClipper);
     range_ids();
-
-    console.log(clipperBin);
-    console.log(dojo.endTime);
-
-    // Update Status
-    dojo.startTime = dojo.endTime;
-    dojo.startPercent = dojo.endPercent;
-    dojo.endTime = (dojo.endPercent * dojo.duration) / 100;
-    dojo.endPercent = dojo.endPercent + 10;
-
-    console.log("On Build Clipper");
-    console.log(dojo.startTime);
-    console.log(dojo.endTime);
+    isClone = false;
 
     //TODO: Build WaveSurfer Regions using regions object
   }
@@ -676,6 +704,19 @@ function schwnk(e) {
   });
 }
 
+let saveBtnEl = document.querySelector("#save_btn"),
+  resetBtnEl = document.querySelector("#reset_btn");
+
+saveBtnEl.addEventListener("click", () => {
+  console.log(dojo.kataBin);
+  localStorage.removeItem("kata");
+  localStorage.setItem("kata", JSON.stringify(dojo.kataBin));
+});
+
+resetBtnEl.addEventListener("click", () => {
+  localStorage.removeItem("kata");
+  console.log("CLEARED");
+});
 /*
 
 I need to set up funnels for my object constructors
