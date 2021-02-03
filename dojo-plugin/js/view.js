@@ -10,7 +10,8 @@ let addAudioBtn = document.getElementById("add_audio_btn"),
   galleryBtn = document.querySelector("#image_btn"),
   thumbClone = document.querySelector("#thumb_clone_holder").children[0],
   thumbImg = thumbClone.children[0],
-  thumbBin = document.querySelector(".clip_bin");
+  thumbBin = document.querySelector(".clip_bin"),
+  progressBarEl = document.querySelector("#seeker_progress");
 
 let thumbLeft = document.getElementById(`thumb_left_1`),
   thumbRight = document.getElementById(`thumb_right_1`),
@@ -72,7 +73,12 @@ view.clipperControls = function (value) {
     });
 
     // Update Dojo KataBin Object
-    dojo.kataBin[dojo.activeIndex].katana.start = dojo.beginTime;
+    dojo.kataBin[dojo.activeIndex].region.start = dojo.beginTime;
+    dojo.kataBin[dojo.activeIndex].katana.start = dojo.beginPercent;
+    let replacement = dojo.kataBin[dojo.activeIndex];
+
+    Storage.updateKata("kata", replacement, dojo.activeIndex);
+    console.log(dojo.kataBin);
   }
 
   function setRightValue() {
@@ -95,7 +101,11 @@ view.clipperControls = function (value) {
       end: dojo.endTime,
     });
 
-    dojo.kataBin[dojo.activeIndex].katana.end = dojo.endTime;
+    dojo.kataBin[dojo.activeIndex].region.end = dojo.endTime;
+    dojo.kataBin[dojo.activeIndex].katana.end = dojo.endPercent;
+    let replacement = dojo.kataBin[dojo.activeIndex];
+    console.log(replacement);
+    Storage.updateKata("kata", replacement, dojo.activeIndex);
   }
 
   inputLeft.addEventListener("input", setLeftValue);
@@ -274,32 +284,39 @@ function wavePlayer() {
     // Get latest data for each Katana from kataBin Global Object
     dojo.kataBin.forEach((clipper, index) => {
       let imageSrc = clipper.mainImage,
-        startClip = clipper.katana.start,
-        endClip = clipper.katana.end,
-        isActive = false; // TODO: Could be my active index fix
+        startClip = clipper.region.start,
+        endClip = clipper.region.end,
+        isActive;
+      console.log(startClip + " to " + endClip);
+      dojo.currentIndex; // TODO: Could be my active index fix
 
       // Determine what happens when current clip is supposed active
       if (dojo.currentTime >= startClip && dojo.currentTime <= endClip) {
         isActive = true;
-        console.log(index + " is " + isActive);
+        dojo.currentIndex = index;
+
         //Show or Hide Slide
-        if ("" === imageSrc) {
+        if ("" === imageSrc && isActive === true) {
+          console.log(index + " is " + isActive);
+          console.log("i dont got image");
           frameBtnEl.style.display = "flex";
           frameEl.style.display = "none";
-        } else {
+        } else if ("" !== imageSrc && isActive === true) {
+          console.log(index + " is " + isActive);
+          console.log("I got Image");
+          frameEl.style.display = "block";
           frameImg.src = imageSrc;
           frameBtnEl.style.display = "none";
-          document.querySelector(".frame").style.display = "block";
-          console.log("No Image");
           console.log(dojo.currentTime);
+        } else {
+          console.log("ndanyarara hangu");
         }
       } else {
         isActive = false;
-        console.log("This condition is not true");
-        console.log(index + " is " + isActive);
-        //console.log("Slider Gone");
-        frameBtnEl.style.display = "flex";
-        frameEl.style.display = "none";
+        if (dojo.currentIndex !== index) {
+          console.log("Im inactive");
+          console.log(index + " is " + isActive);
+        }
       }
     });
   });
@@ -314,6 +331,10 @@ function wavePlayer() {
 
   Spectrum.on("audioprocess", function () {
     dojo.currentTime = Spectrum.getCurrentTime();
+    dojo.currentPercent = (dojo.currentTime / dojo.duration) * 100;
+
+    progressBarEl.style.width = dojo.currentPercent + "%";
+
     let mins = Math.floor(Spectrum.getCurrentTime() / 60);
     if (mins < 10) {
       mins = "0" + String(mins);
@@ -330,6 +351,10 @@ function wavePlayer() {
       waveEl.scrollBy(w, w);
     }
   });
+
+  /**
+   * ON READY
+   */
 
   Spectrum.on("ready", function () {
     dojo.duration = Spectrum.getDuration();
@@ -348,11 +373,11 @@ function wavePlayer() {
 
     timeStatusUpdate();
 
-    //TODO: Wrap in a forEach loop, Read every clipper in local storage
+    UI.buildEditor(); // Reads from local storage
 
     dojo.kataBin.forEach((slide) => {
       let start = slide.region.start,
-        end = dojo.endTime;
+        end = slide.region.end;
 
       let newRegion = Spectrum.addRegion({
         start: start,
@@ -368,7 +393,9 @@ function wavePlayer() {
       // dojo.endTime = (dojo.endPercent * dojo.duration) / 100;
     });
 
-    UI.buildEditor(); // Reads from local storage
+    /**
+     * ON CLICK
+     */
 
     let addBtn = document.getElementById("clone_btn");
     addBtn.addEventListener("click", () => {
@@ -377,14 +404,23 @@ function wavePlayer() {
         binArray = clipperBin.querySelectorAll(".clipper_wrapper"),
         newId = binArray.length + 1,
         indexx = parseInt(newId) - 1;
-
+      console.log(dojo.startTime);
+      console.log(dojo.endTime);
       let newRegion = Spectrum.addRegion({
         start: dojo.startTime,
         end: dojo.endTime,
         color: "rgba(0, 0, 0, 0.4)",
       });
-
       region.push(newRegion);
+      console.log(region);
+      console.log(indexx);
+
+      region[indexx].update({
+        start: dojo.startTime,
+        end: dojo.endTime,
+        color: "rgba(0, 0, 0, 0.4)",
+      });
+
       UI.buildClipper();
       let tsa = new Katana(dojo.startPercent, dojo.endPercent, "");
       let tsaa = new KatanaRegion(dojo.startTime, dojo.endTime);
@@ -393,6 +429,12 @@ function wavePlayer() {
       Storage.addKata(tsaah, "kata");
 
       console.log(tsaah);
+
+      region[indexx].update({
+        start: dojo.startTime,
+        end: dojo.endTime,
+        color: "rgba(0, 0, 0, 0.4)",
+      });
     });
 
     range_ids();
@@ -536,12 +578,16 @@ class UI {
     range_ids();
 
     console.log(clipperBin);
+    console.log(dojo.endTime);
+
     // Update Status
     dojo.startTime = dojo.endTime;
     dojo.startPercent = dojo.endPercent;
-    dojo.endPercent = dojo.endPercent + 10;
     dojo.endTime = (dojo.endPercent * dojo.duration) / 100;
+    dojo.endPercent = dojo.endPercent + 10;
+
     console.log("On Build Clipper");
+    console.log(dojo.startTime);
     console.log(dojo.endTime);
 
     //TODO: Build WaveSurfer Regions using regions object
@@ -594,8 +640,8 @@ function schwnk(e) {
 
   dojo.kataBin.forEach((clipper, index) => {
     let imageSrc = clipper.mainImage,
-      startClip = clipper.katana.start,
-      endClip = clipper.katana.end,
+      startClip = clipper.region.start,
+      endClip = clipper.region.end,
       isActive = false;
 
     if (dojo.currentTime >= startClip && dojo.currentTime <= endClip) {
@@ -604,6 +650,9 @@ function schwnk(e) {
       imageSrc = gallArray[ii].source_url;
 
       dojo.kataBin[index].mainImage = imageSrc;
+      let replacement = dojo.kataBin[index];
+
+      Storage.updateKata("kata", replacement, index);
 
       // let yas = Storage.getKata();
 

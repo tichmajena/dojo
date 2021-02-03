@@ -154,6 +154,12 @@ class Storage {
     localStorage.setItem(storageName, JSON.stringify(pfimbi));
   }
 
+  static updateKata(storageName, replacement, index) {
+    let pfimbi = Storage.getKata(storageName);
+    pfimbi.splice(index, 1, replacement);
+    localStorage.setItem(storageName, JSON.stringify(pfimbi));
+  }
+
   static removeKata(leID) {
     let pfimbi = Storage.getKata();
 
