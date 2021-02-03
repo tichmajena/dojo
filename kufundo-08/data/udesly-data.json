@@ -1,0 +1,45 @@
+{
+  "pages": [
+    "index",
+    "styleguide"
+  ],
+  "plugins": [],
+  "cpt": [
+    "dojo"
+  ],
+  "data": {
+    "index": {
+      "query": [],
+      "list": [],
+      "rule": [],
+      "cf": [],
+      "menu": [],
+      "boxes": []
+    },
+    "styleguide": {
+      "query": [],
+      "list": [],
+      "rule": [],
+      "cf": [],
+      "menu": [],
+      "boxes": []
+    },
+    "dojo": {
+      "query": [],
+      "list": [],
+      "rule": [],
+      "cf": [],
+      "menu": [],
+      "boxes": []
+    },
+    "detail_post": {
+      "query": [],
+      "list": [],
+      "rule": [],
+      "cf": [],
+      "menu": [],
+      "boxes": []
+    }
+  },
+  "frontendEditor": true
+}
